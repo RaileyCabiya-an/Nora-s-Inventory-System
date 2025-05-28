@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Nora's Inventory System</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* Fixed Sidebar (Navbar) Styling */
+    .sidebar {
+      width: 300px;                     /* Fixed width */
+      background-color: #198754;          /* Your chosen background color */
+      color: white;
+      height: 100vh;                    /* Full viewport height */
+      padding: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      overflow-y: auto;                 /* Scroll if content overflows */
+      box-sizing: border-box;
+    }
+    .sidebar h3 {
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+    .sidebar ul {
+      padding: 0;
+      list-style: none;
+      margin-bottom: 0;
+    }
+    .sidebar .nav-link {
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      transition: background-color 0.3s ease;
+      text-decoration: none;
+    }
+    .sidebar .nav-link:hover {
+      background-color: rgba(76, 149, 108, 1);
+      color: rgb(247, 206, 129);
+      font-weight: 650;
+      border-radius: 5px;
+    }
+
+    /* Sidebar Loader (small spinner) */
+    #sidebarLoader {
+      display: none;
+      margin: 15px auto;
+      text-align: center;
+    }
+    /* Main Content Styling */
+    .content {
+      margin-left: 300px;    /* Equal to sidebar width (no overlapping) */
+      padding: 20px;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    /* (Optional) Full-Page Loader */
+    #loader {
+      display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255,255,255,0.8);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar (Navbar) -->
+  <div class="sidebar">
+    <h3><i class="fas fa-warehouse"></i> Nora's Inventory</h3>
+    <hr>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link" href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/stock"><i class="fas fa-boxes"></i> Stock</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/order"><i class="fas fa-shopping-cart"></i> Orders</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/supplier"><i class="fas fa-truck"></i> Suppliers</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/reports"><i class="fas fa-chart-line"></i> Reports</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/account"><i class="fas fa-user"></i> Account</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </li>
+    </ul>
+    <!-- Loader Element in Sidebar -->
+    <div id="sidebarLoader">
+      <div class="spinner-border spinner-border-sm text-white" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </div>  
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // When the DOM is ready, attach click handlers to sidebar links to show the loader.
+    document.addEventListener('DOMContentLoaded', function() {
+      const sidebarLoader = document.getElementById('sidebarLoader');
+      document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+        link.addEventListener('click', function() {
+          sidebarLoader.style.display = 'block';
+        });
+      });
+      // Hide the loader when the page finishes loading.
+      window.addEventListener('load', function() {
+        sidebarLoader.style.display = 'none';
+      });
+    });
+  </script>
+</body>
+</html>

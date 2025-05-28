@@ -1,0 +1,184 @@
+<%- include('partials/navbar') %>
+
+<!-- CSS & Bootstrap -->
+<link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<div class="d-flex">
+  <div class="container mt-5" style="margin-left: 320px; padding: 20px;">
+    <h1>Supplier Management</h1>
+    
+    <!-- Add Supplier Button (Launches Modal) -->
+    <div class="mb-3">
+      <button type="button" class="btn btn-primary" onclick="showAddSupplierModal()">Add Supplier</button>
+    </div>
+
+    <!-- Supplier Table -->
+    <table class="table table-striped table-bordered">
+      <thead class="table-success">
+        <tr>
+          <th>Name</th>
+          <th>Contact</th>
+          <th>Email</th>
+          <th>Address</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (suppliers && suppliers.length > 0) { %>
+          <% suppliers.forEach(supplier => { %>
+            <tr>
+              <td><%= supplier.name %></td>
+              <td><%= supplier.contact %></td>
+              <td><%= supplier.email ? supplier.email : "No Email Provided" %></td>
+              <td><%= supplier.address %></td>
+              <td>
+                <!-- Edit button triggers the Edit Supplier Modal -->
+                <button type="button" class="btn btn-warning btn-sm" 
+                  onclick="showEditSupplierModal('<%= supplier._id %>', '<%= supplier.name %>', '<%= supplier.contact %>', '<%= supplier.email %>', '<%= supplier.address %>')">
+                  Edit
+                </button>
+                <!-- Delete button triggers the Delete Supplier Modal -->
+                <button type="button" class="btn btn-danger btn-sm" 
+                  onclick="showDeleteSupplierModal('<%= supplier._id %>', '<%= supplier.name %>')">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="5" class="text-center">No suppliers available.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ========================================
+     Add Supplier Modal
+======================================== -->
+<div class="modal fade" id="addSupplierModal" tabindex="-1" aria-labelledby="addSupplierModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addSupplierModalLabel">Add New Supplier</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addSupplierForm" action="/supplier/add" method="POST">
+          <div class="mb-3">
+            <label for="addSupplierName" class="form-label">Supplier Name:</label>
+            <input type="text" class="form-control" name="name" id="addSupplierName" required>
+          </div>
+          <div class="mb-3">
+            <label for="addSupplierContact" class="form-label">Contact:</label>
+            <input type="text" class="form-control" name="contact" id="addSupplierContact" required>
+          </div>
+          <div class="mb-3">
+            <label for="addSupplierEmail" class="form-label">Email:</label>
+            <input type="email" class="form-control" name="email" id="addSupplierEmail">
+          </div>
+          <div class="mb-3">
+            <label for="addSupplierAddress" class="form-label">Address:</label>
+            <input type="text" class="form-control" name="address" id="addSupplierAddress" required>
+          </div>
+          <button type="submit" class="btn btn-success">Add Supplier</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================
+     Edit Supplier Modal
+======================================== -->
+<div class="modal fade" id="editSupplierModal" tabindex="-1" aria-labelledby="editSupplierModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editSupplierModalLabel">Edit Supplier Information</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- The form action is set dynamically -->
+        <form id="editSupplierForm" action="" method="POST">
+          <div class="mb-3">
+            <label for="editSupplierName" class="form-label">Supplier Name:</label>
+            <input type="text" class="form-control" name="name" id="editSupplierName" required>
+          </div>
+          <div class="mb-3">
+            <label for="editSupplierContact" class="form-label">Contact:</label>
+            <input type="text" class="form-control" name="contact" id="editSupplierContact" required>
+          </div>
+          <div class="mb-3">
+            <label for="editSupplierEmail" class="form-label">Email:</label>
+            <input type="email" class="form-control" name="email" id="editSupplierEmail">
+          </div>
+          <div class="mb-3">
+            <label for="editSupplierAddress" class="form-label">Address:</label>
+            <input type="text" class="form-control" name="address" id="editSupplierAddress" required>
+          </div>
+          <button type="submit" class="btn btn-success">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================
+     Confirm Delete Supplier Modal
+======================================== -->
+<div class="modal fade" id="confirmDeleteSupplierModal" tabindex="-1" aria-labelledby="confirmDeleteSupplierModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmDeleteSupplierModalLabel">Confirm Supplier Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete <strong id="deleteSupplierName"></strong>?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <a id="confirmDeleteSupplierButton" href="#" class="btn btn-danger">Confirm</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================
+     JavaScript for Modal Handling
+======================================== -->
+<script>
+  // Function to launch the Add Supplier Modal.
+  function showAddSupplierModal() {
+    const addModal = new bootstrap.Modal(document.getElementById('addSupplierModal'));
+    addModal.show();
+  }
+
+  // Function to show and pre-fill the Edit Supplier Modal.
+  function showEditSupplierModal(supplierId, name, contact, email, address) {
+    document.getElementById('editSupplierName').value = name;
+    document.getElementById('editSupplierContact').value = contact;
+    document.getElementById('editSupplierEmail').value = email;
+    document.getElementById('editSupplierAddress').value = address;
+    // Set the form action dynamically to POST to /supplier/edit/:id
+    document.getElementById('editSupplierForm').action = '/supplier/edit/' + supplierId;
+    
+    const editModal = new bootstrap.Modal(document.getElementById('editSupplierModal'));
+    editModal.show();
+  }
+
+  // Function to show the confirmation modal for deleting a supplier.
+  function showDeleteSupplierModal(supplierId, name) {
+    document.getElementById('deleteSupplierName').innerText = name;
+    // Set the confirm delete link's href to /supplier/delete/:id
+    document.getElementById('confirmDeleteSupplierButton').setAttribute('href', '/supplier/delete/' + supplierId);
+    
+    const deleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteSupplierModal'));
+    deleteModal.show();
+  }
+</script>

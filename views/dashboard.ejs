@@ -1,0 +1,149 @@
+<%- include('partials/navbar') %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Inventory System - Dashboard</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <!-- Include Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container" style="margin-left: 320px; padding: 20px;">
+    <!-- Header Section -->
+    <header class="mb-3">
+      <h1>Dashboard</h1>
+      <p>Current Time: <%= currentDate %></p>
+    </header>
+
+    <!-- Stocks Bar Graph - Aggregated by Category (Fruit & Vegetable) -->
+    <div class="card mb-4">
+      <div class="card-header">
+        Stocks by Category (Fruit & Vegetable)
+      </div>
+      <div class="card-body">
+        <canvas id="stocksChart" width="400" height="200"></canvas>
+      </div>
+    </div>
+
+
+          <!-- Monitoring Near Perish Stocks -->
+      <div class="card">
+        <div class="card-header">
+          Stock Perish Monitoring
+        </div>
+        <div class="card-body">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Condition</th>
+                <th>Arrival Date</th>
+                <th>Days Since Arrival</th>
+                <th>Expected Perish Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% stocks.forEach(function(stock) { 
+                    // Convert arrival date to a Date object.
+                    let arrival = new Date(stock.arrivalDate);
+                    let today = new Date();
+                    // Calculate number of days since arrival.
+                    let diffDays = Math.floor((today - arrival) / (1000 * 60 * 60 * 24));
+                    
+                    // Determine a threshold based on the stock's condition.
+                    let threshold;
+                    if (stock.productCondition === 'Good') {
+                      threshold = 7;
+                    } else if (stock.productCondition === 'Damaged') {
+                      threshold = 5;
+                    } else {
+                      threshold = 10; // default threshold if condition is not one of the above
+                    }
+                    
+                    // Compute the expected perish date by adding the threshold (in days) to the arrival date.
+                    let expectedPerishDate = new Date(arrival.getTime() + threshold * 24 * 60 * 60 * 1000);
+              %>
+              <tr>
+                  <td>
+                    <% 
+                        // Check if the product field exists.
+                        if (stock.product) { 
+                          // If stock.product is an object and has a 'name' property, use it.
+                          let productName = (typeof stock.product === 'object' && stock.product.name) 
+                                            ? stock.product.name 
+                                            : stock.product;
+                          %>
+                          <%= productName %>
+                    <% } else { %>
+                          Unknown
+                    <% } %>
+                  </td>
+                  <td><%= stock.productCondition %></td>
+                  <td><%= new Date(stock.arrivalDate).toLocaleDateString() %></td>
+                  <td><%= diffDays %> day(s)</td>
+                  <td><%= expectedPerishDate.toLocaleDateString() %></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+
+
+  </div>
+
+  <!-- Chart.js Script -->
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Parse the stocks data passed from the route.
+      const stocksData = <%- JSON.stringify(stocks) %>;
+      console.log("Stocks data:", stocksData);
+
+      // Aggregate total stock quantity by product category ("Fruit" and "Vegetable")
+      let categoryCounts = { Fruit: 0, Vegetable: 0 };
+      stocksData.forEach(stock => {
+        // Determine category from the populated product or fall back to stock.category
+        let category = (stock.product && stock.product.category) ? stock.product.category : (stock.category || "Unknown");
+        // Only aggregate for Fruit or Vegetable
+        if (category === 'Fruit' || category === 'Vegetable') {
+          categoryCounts[category] += Number(stock.quantity) || 0;
+        }
+      });
+
+      const labels = Object.keys(categoryCounts);
+      const counts = Object.values(categoryCounts);
+
+      // Create the Chart.js bar chart
+      const ctx = document.getElementById('stocksChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Total Stock Quantity',
+            data: counts,
+            backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)'],
+            borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1 }
+            }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
